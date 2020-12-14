@@ -1,0 +1,18 @@
+#eclipse
+/bin
+/.settings
+/.classpath
+
+#idea
+/.idea
+*.iml
+
+#gradle
+/build
+
+#mvn
+/out
+/target
+
+# Log files
+*.log
