@@ -15,7 +15,7 @@
             <th>Имейл</th>
             <th>Ссылка</th>
         </tr>
-        <th:block th:each="user : ${UserPage}">
+        <th:block th:each="user : ${page.getPaginatedContent()}">
             <tr>
                 <td th:text="${user.getId()}"></td>
                 <td th:text="${user.getFirstName()}"></td>
@@ -25,6 +25,9 @@
             </tr>
         </th:block>
     </table>
+    <a th:if="${page.hasPrevPage()}" th:href="@{/users(page=${page.prevPageNumber()}, rowByPage=${page.getRowCountByPage()})}">Пред </a>
+    <a th:text=" ${page.getPageNumber()}" th:href="@{/users/(rowByPage=${page.getRowCountByPage()})}"></a>
+    <a th:if="${page.hasNextPage()}" th:href="@{/users/(page=${page.nextPageNumber()}, rowByPage=${page.getRowCountByPage()})}"> След</a>
 </div>
 </body>
 </html>

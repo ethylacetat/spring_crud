@@ -16,7 +16,8 @@ public class UserDaoImpl implements UserDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public UserDaoImpl(){}
+    public UserDaoImpl() {
+    }
 
     @Override
     public Optional<User> getUserById(long userId) {
@@ -27,13 +28,28 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getAllUser() {
-        return entityManager.createQuery("SELECT user FROM User user", User.class).getResultList();
+        return entityManager.createNamedQuery("getAllUser", User.class).getResultList();
+    }
+
+    @Override
+    public List<User> getRangedUser(int from, int count) {
+        return entityManager
+                .createNamedQuery("getAllUser", User.class)
+                .setFirstResult(from)
+                .setMaxResults(count)
+                .getResultList();
     }
 
     @Override
     public void deleteUSerById(long userId) {
         User user = entityManager.find(User.class, userId);
-        entityManager.remove(user);
+
+        // TODO: Бросать рантайм?
+        if (user != null) {
+            entityManager.remove(user);
+        }
+
+
     }
 
     @Override

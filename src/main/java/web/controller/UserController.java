@@ -3,12 +3,10 @@ package web.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import web.model.User;
 import web.service.UserService;
+import web.util.Page;
 
 @Controller
 @RequestMapping(path = "users")
@@ -22,9 +20,14 @@ public class UserController {
     }
 
     // Отдаём страничку с юзерами
-    @GetMapping(path = "/")
-    public String getAllUser(ModelMap model){
-        model.addAttribute("UserPage", userService.getAllUser());
+    @GetMapping
+    public String getAllUser(
+            @RequestParam(name = "page", defaultValue = "1") int pageNumber,
+            @RequestParam(name = "rowByPage", defaultValue = "20") int rowByPage,
+            ModelMap model){
+
+        Page<User> userPage = userService.getUsersPage(pageNumber, rowByPage);
+        model.addAttribute("page", userPage);
         return "paginatedUsers";
     }
 
