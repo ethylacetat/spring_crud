@@ -1,12 +1,10 @@
 package web.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import web.model.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,8 +20,23 @@ public class UserDaoImpl implements UserDao {
     @Override
     public Optional<User> getUserById(long userId) {
         User user = entityManager.find(User.class, userId);
-
         return Optional.ofNullable(user);
+    }
+
+    @Override
+    public Optional<User> getUserByEmail(String email) {
+        // TODO: getSingleResult() и пробрасывать рантайм эксепшен? с листом очень странно и не похоже на best practice
+
+        List<User> users = entityManager
+                .createNamedQuery("getByEmail", User.class)
+                .setParameter("name", email)
+                .getResultList();
+
+        if (!users.isEmpty()) {
+            return Optional.of(users.get(0));
+        }
+
+        return Optional.empty();
     }
 
     @Override
@@ -48,8 +61,6 @@ public class UserDaoImpl implements UserDao {
         if (user != null) {
             entityManager.remove(user);
         }
-
-
     }
 
     @Override

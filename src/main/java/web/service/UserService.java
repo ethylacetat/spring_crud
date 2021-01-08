@@ -8,6 +8,9 @@ import java.util.Optional;
 
 public interface UserService {
     Optional<User> getUserById(long userId);
+    Optional<User> getUserByIdWithJoins(long userId);
+    Optional<User> getUserByEmail(String email);
+    Optional<User> getUserByEmailWithJoins(String email);
     List<User> getAllUser();
     List<User> getRangedUser(int includedFrom, int excludedTo);
     Page<User> getUsersPage(int pageNumber, int rowCountByPage);

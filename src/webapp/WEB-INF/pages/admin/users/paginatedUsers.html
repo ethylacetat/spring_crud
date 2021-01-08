@@ -21,13 +21,15 @@
                 <td th:text="${user.getFirstName()}"></td>
                 <td th:text="${user.getSecondName()}"></td>
                 <td th:text="${user.getEmail()}"></td>
-                <td><a th:href="@{'/users/' + ${user.getId()}}">To user</a></td>
+                <td><a th:href="@{'/admin/users/' + ${user.getId()}}">To user</a></td>
             </tr>
         </th:block>
     </table>
-    <a th:if="${page.hasPrevPage()}" th:href="@{/users(page=${page.prevPageNumber()}, rowByPage=${page.getRowCountByPage()})}">Пред </a>
-    <a th:text=" ${page.getPageNumber()}" th:href="@{/users/(rowByPage=${page.getRowCountByPage()})}"></a>
-    <a th:if="${page.hasNextPage()}" th:href="@{/users/(page=${page.nextPageNumber()}, rowByPage=${page.getRowCountByPage()})}"> След</a>
+    <a th:if="${page.hasPrevPage()}" th:href="@{/admin/users(page=${page.prevPageNumber()}, rowByPage=${page.getRowCountByPage()})}">Пред </a>
+    <a th:text=" ${page.getPageNumber()}" th:href="@{/admin/users/(rowByPage=${page.getRowCountByPage()})}"></a>
+    <a th:if="${page.hasNextPage()}" th:href="@{/admin/users/(page=${page.nextPageNumber()}, rowByPage=${page.getRowCountByPage()})}"> След</a>
+    <br>
+    <a href="logout">Выйти из системы</a>
 </div>
 </body>
 </html>

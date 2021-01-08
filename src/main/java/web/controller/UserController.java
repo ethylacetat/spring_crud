@@ -1,70 +1,46 @@
 package web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import web.model.User;
 import web.service.UserService;
-import web.util.Page;
+
+import java.util.Optional;
 
 @Controller
-@RequestMapping(path = "users")
+@RequestMapping
 public class UserController {
 
     private final UserService userService;
+
 
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    // Отдаём страничку с юзерами
     @GetMapping
-    public String getAllUser(
-            @RequestParam(name = "page", defaultValue = "1") int pageNumber,
-            @RequestParam(name = "rowByPage", defaultValue = "20") int rowByPage,
-            ModelMap model){
+    public String getMainPage(Authentication authentication, ModelMap modelMap) {
+        if (authentication != null) {
+            boolean isAdmin = authentication.getAuthorities()
+                    .stream()
+                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equalsIgnoreCase("ADMIN"));
 
-        Page<User> userPage = userService.getUsersPage(pageNumber, rowByPage);
-        model.addAttribute("page", userPage);
-        return "paginatedUsers";
+            modelMap.addAttribute("isAdmin", isAdmin);
+        }
+
+        return "./index";
     }
 
-    // Получаем страничку с информацией о пользователе(также кнопки удаления и сохранения)
-    @GetMapping(path = "/{id}")
-    public String getUserById(@PathVariable(name = "id") long userId, ModelMap model){
-        User userById = userService.getUserById(userId).orElse(null);
-        model.addAttribute("user", userById);
-
-        return "users/user";
+    @GetMapping
+    @RequestMapping(path = "/user")
+    public String getUserPage(Authentication authentication, ModelMap model) {
+        Optional<User> optionalUser = userService.getUserByEmail(authentication.getName());
+        optionalUser.ifPresent(user -> model.addAttribute("user", user));
+        return "./user";
     }
-
-    // Адрес для запроса на удаление пользователя
-    @PostMapping(path = "delete/{id}")
-    public String deleteUserById(@PathVariable(name = "id") long userId){
-        userService.deleteUSerById(userId);
-        return "redirect:/users/";
-    }
-
-    // Адрес для запроса на обновление пользователя
-    @PostMapping(path = "/{id}/edit")
-    public String mergeUser(@PathVariable(name = "id") long userId, User mergedUser){
-        userService.mergeUser(mergedUser);
-        return "redirect:/users/" + userId;
-    }
-
-    // Адрес для запроса на создание пользователя
-    @PostMapping(path = "/post")
-    public String addUser(User newUser) {
-        userService.addUser(newUser);
-        return "redirect:/users/";
-    }
-
-    // Статическая страница для добавления пользователя
-    @GetMapping(path = "/post")
-    public String getUserCreateForm() {
-        return "users/post";
-    }
-
 }

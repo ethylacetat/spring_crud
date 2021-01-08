@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<div>
+    <form th:action="@{/admin/roles/}" method="post">
+        <fieldset>
+            <H3>Создание роли</H3>
+            <label for="input_fn">Имя роли: </label><br>
+            <input id="input_fn" placeholder="Введите имя роли" name="authority" type="text"/><br><br>
+        </fieldset><br>
+        <input type="submit" value="Создать" />
+    </form>
+    <br>
+    <br>
+
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Роль</th>
+        </tr>
+        <th:block th:each="role : ${availableRoles}">
+            <tr>
+                <td th:text="${role.getId()}"></td>
+                <td th:text="${role.getAuthority()}"></td>
+            </tr>
+        </th:block>
+    </table>
+    <br>
+    <br>
+    <a href="../logout">Выйти из системы</a>
+</div>
+</body>
+</html>

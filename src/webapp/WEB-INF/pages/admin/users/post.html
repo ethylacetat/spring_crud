@@ -7,7 +7,7 @@
 </head>
 <body>
 <div>
-    <form th:action="@{/users/post/}" method="post">
+    <form th:action="@{/admin/users/post/}" method="post">
         <fieldset>
             <H3>Создание пользователя</H3>
             <label for="input_fn">Имя: </label><br>
@@ -18,9 +18,23 @@
 
             <label for="input_e">Email:</label><br>
             <input id="input_e" placeholder="Введите email" name="email" type="text"/><br><br>
+
+            <label for="input_p">Пароль:</label><br>
+            <input id="input_p" placeholder="Введите пароль" name="password" type="text"/><br><br>
+        </fieldset><br>
+
+        <fieldset title="Роли пользователя">
+            <legend>Роли пользователя</legend>
+            <th:block th:each="role : ${availableRoles}">
+                <input th:id="${role.getAuthority()}" type="checkbox" name="role" th:value="${role.getAuthority()}">
+                <label th:for="${role.getAuthority()}" th:text="${role.getAuthority()}"></label><br>
+            </th:block>
         </fieldset><br>
         <input type="submit" value="Создать" />
     </form>
+    <br>
+    <br>
+    <a href="/logout">Выйти из системы</a>
 </div>
 </body>
 </html>

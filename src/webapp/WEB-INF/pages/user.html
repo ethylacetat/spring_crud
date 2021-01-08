@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <H4>Ваш профиль</H4>
+    <p th:text="${'ID:    ' + user.getId()}"></p>
+    <p th:text="${'Имя:   ' + user.getFirstName()}"></p>
+    <p th:text="${'Фамилия: ' + user.getSecondName()}"></p>
+    <p th:text="${'Email: ' + user.getEmail()}"></p>
+    <br>
+    <a href="logout">Выйти из системы</a>
+
+</div>
+</body>
+</html>

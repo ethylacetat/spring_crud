@@ -4,11 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import web.dao.UserDao;
 import web.model.User;
+import web.util.JPAUtil;
 import web.util.Page;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -25,6 +25,28 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> getUserById(long userId) {
         return userDao.getUserById(userId);
+    }
+
+    @Override
+    public Optional<User> getUserByIdWithJoins(long userId) {
+        Optional<User> optionalUser = userDao.getUserById(userId);
+        // Принудительно загружаем Роли обращением к коллекции
+        optionalUser.ifPresent(user -> JPAUtil.initialize(user.getRoles()));
+        return optionalUser;
+    }
+
+    @Override
+    public Optional<User> getUserByEmail(String email) {
+        return userDao.getUserByEmail(email);
+    }
+
+    @Override
+    public Optional<User> getUserByEmailWithJoins(String email) {
+        Optional<User> optionalUser = userDao.getUserByEmail(email);
+        // Принудительно загружаем Роли обращением к коллекции
+        optionalUser.ifPresent(user -> JPAUtil.initialize(user.getRoles()));
+
+        return optionalUser;
     }
 
     @Override
