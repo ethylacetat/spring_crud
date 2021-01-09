@@ -29,7 +29,7 @@
     <a th:text=" ${page.getPageNumber()}" th:href="@{/admin/users/(rowByPage=${page.getRowCountByPage()})}"></a>
     <a th:if="${page.hasNextPage()}" th:href="@{/admin/users/(page=${page.nextPageNumber()}, rowByPage=${page.getRowCountByPage()})}"> След</a>
     <br>
-    <a href="logout">Выйти из системы</a>
+    <a href="/logout">Выйти из системы</a>
 </div>
 </body>
 </html>

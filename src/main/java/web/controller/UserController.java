@@ -33,7 +33,7 @@ public class UserController {
             modelMap.addAttribute("isAdmin", isAdmin);
         }
 
-        return "./index";
+        return "index";
     }
 
     @GetMapping
