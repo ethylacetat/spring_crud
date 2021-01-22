@@ -1,6 +1,7 @@
 package web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,6 @@ public class AdminController {
     public static final String CONTROLLER_ROOT = "/admin";
     public static final String USERS_ROOT = "/users";
 
-
     private final UserService userService;
     private final IAuthorityService userAuthorityService;
 
@@ -42,47 +42,56 @@ public class AdminController {
     }
 
     // Отдаём страничку с юзерами
-    @GetMapping(path = AdminController.USERS_ROOT)
-    public String getAllUser(
-            @RequestParam(name = "page", defaultValue = "1") int pageNumber,
-            @RequestParam(name = "rowByPage", defaultValue = "20") int rowByPage,
-            ModelMap model) {
 
-        Page<User> userPage = userService.getUsersPage(pageNumber, rowByPage);
-        model.addAttribute("page", userPage);
-        return "admin/users/paginatedUsers";
-    }
+//    @GetMapping(path = AdminController.USERS_ROOT)
+//    public String getAllUser(
+//            @RequestParam(name = "page", defaultValue = "1") int pageNumber,
+//            @RequestParam(name = "rowByPage", defaultValue = "20") int rowByPage,
+//            Authentication authentication,
+//            ModelMap model) {
+//
+//        Page<User> userPage = userService.getUsersPage(pageNumber, rowByPage);
+//        model.addAttribute("page", userPage);
+//
+//        Optional<User> loggedUser = userService.getUserByEmail(authentication.getName());
+//
+//        loggedUser.ifPresent(user -> model.addAttribute("logged_user", user));
+//
+//        model.addAttribute("availableRoles", userAuthorityService.getAvailableRoles());
+//
+//        return "admin/users/paginatedUsers";
+//    }
 
     // Получаем страничку с информацией о пользователе(также кнопки удаления и сохранения)
-    @GetMapping(path = AdminController.USERS_ROOT + "/{id}")
-    public String getUserById(
-            @PathVariable(name = "id") long userId,
-            ModelMap model) {
-
-        Optional<User> optionalUser = userService.getUserByIdWithJoins(userId);
-
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            Set<Role> roles = user.getRoles();
-
-            model.addAttribute("user", user);
-
-            Map<Role, Boolean> roleCheckboxes = userAuthorityService.getAvailableRoles()
-                    .stream().collect(Collectors.toMap(Function.identity(), role -> roles.contains(role)));
-
-            model.addAttribute("roleCheckboxes", roleCheckboxes);
-        } else {
-            // TODO: 404
-        }
-
-        return "admin/users/user";
-    }
+//    @GetMapping(path = AdminController.USERS_ROOT + "/{id}")
+//    public String getUserById(
+//            @PathVariable(name = "id") long userId,
+//            ModelMap model) {
+//
+//        Optional<User> optionalUser = userService.getUserByIdWithJoins(userId);
+//
+//        if (optionalUser.isPresent()) {
+//            User user = optionalUser.get();
+//            Set<Role> roles = user.getRoles();
+//
+//            model.addAttribute("user", user);
+//
+//            Map<Role, Boolean> roleCheckboxes = userAuthorityService.getAvailableRoles()
+//                    .stream().collect(Collectors.toMap(Function.identity(), role -> roles.contains(role)));
+//
+//            model.addAttribute("roleCheckboxes", roleCheckboxes);
+//        } else {
+//            // TODO: 404
+//        }
+//
+//        return "admin/users/user";
+//    }
 
     // Адрес для запроса на удаление пользователя
     @PostMapping(path = "/users/delete/{id}")
     public String deleteUserById(@PathVariable(name = "id") long userId) {
         userService.deleteUSerById(userId);
-        return "redirect:/admin/users/";
+        return "redirect:/";
     }
 
     // Адрес для запроса на обновление пользователя
@@ -110,7 +119,7 @@ public class AdminController {
 
         }
 
-        return String.format("redirect:/admin/users/%s/", userId);
+        return "redirect:/";
     }
 
     // Адрес для запроса на создание пользователя
@@ -127,17 +136,17 @@ public class AdminController {
 
         userService.addUser(newUser);
 
-        return "redirect:/admin/users/";
+        return "redirect:/";
     }
 
     // Статическая страница для добавления пользователя
-    @GetMapping(path = "/users/post")
-    public String getUserCreateForm(ModelMap model) {
-
-        model.addAttribute("availableRoles", userAuthorityService.getAvailableRoles());
-
-        return "admin/users/post";
-    }
+//    @GetMapping(path = "/users/post")
+//    public String getUserCreateForm(ModelMap model) {
+//
+//        model.addAttribute("availableRoles", userAuthorityService.getAvailableRoles());
+//
+//        return "admin/users/post";
+//    }
 
     @GetMapping(path = "/roles")
     public String getAllRole(ModelMap model) {

@@ -1,15 +1,366 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
+    <script th:if="${isAdmin}" src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+            crossorigin="anonymous"></script>
     <title></title>
 </head>
-<body>
-<div>
-    <a href="user/"><H3>Обо мне</H3></a>
-    <a th:if="${isAdmin}" href="admin/"><H3>Админка</H3></a>
-    <a href="logout"><H3>Выйти из системы</H3></a>
+<body class="container-fluid p-0">
+<header class="navbar bg-dark">
+    <h3 th:text="${logged_user.getEmail()}" class="text-white"></h3>
+    <a href="/logout" class="btn btn-dark">Logout</a>
+</header>
+
+
+<!-- Начало бокового навбара -->
+<div class="row mr-0 mt-3 ">
+    <div class="col-2 p-0">
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+            <a th:if="${isAdmin}" class="nav-link active ml-3" id="admin-tab" data-toggle="pill" href="#v-pills-admin" role="tab"
+               aria-controls="v-pills-admin" aria-selected="true">Admin</a>
+            <a id="user-tab" th:attr="class=${isAdmin ? 'nav-link ml-3' : 'nav-link active ml-3'}"
+               class="nav-link ml-3" data-toggle="pill" href="#v-pills-user" role="tab"
+               aria-controls="v-pills-profile" aria-selected="false">User</a>
+        </div>
+    </div>
+    <div class="col-10 p-0">
+        <div class="tab-content" id="v-pills-tabContent">
+
+            <div th:if="${isAdmin}" class="tab-pane fade show active" id="v-pills-admin" role="tabpanel" aria-labelledby="admin-tab">
+                <!-- Вложенный горизонтальный навбар -->
+                <nav>
+                    <div class="nav nav-tabs mx-3" id="admin-nav-tab" role="tablist">
+                        <a class="nav-item nav-link active" id="nav-user-table-tab" data-toggle="tab"
+                           href="#nav-user-table" role="tab" aria-controls="nav-user-table-tab" aria-selected="true">User
+                            table</a>
+                        <a class="nav-item nav-link" id="nav-new-user-tab" data-toggle="tab" href="#nav-new-user"
+                           role="tab" aria-controls="nav-new-user-tab" aria-selected="false">New user</a>
+                    </div>
+                </nav>
+                <div class="tab-content mx-3" id="nav-tabContent">
+                    <!-- Вкладка со всеми юзерами -->
+                    <div class="tab-pane fade show active" id="nav-user-table" role="tabpanel"
+                         aria-labelledby="nav-user-table-tab">
+                        <div class="container border rounded p-0">
+                            <h3 class="m-3">All users</h3>
+                            <hr class="mx-1">
+                            <div class="container m-0 p-3">
+                                <table class="table table-striped table-sm">
+                                    <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Имя</th>
+                                        <th>Фамилия</th>
+                                        <th>Имейл</th>
+                                        <th>Edit</th>
+                                        <th>Delete</th>
+                                    </tr>
+                                    </thead>
+                                    <th:block th:each="user : ${page.getPaginatedContent()}">
+                                        <tr>
+                                            <td th:text="${user.getId()}"></td>
+                                            <td th:text="${user.getFirstName()}"></td>
+                                            <td th:text="${user.getSecondName()}"></td>
+                                            <td th:text="${user.getEmail()}"></td>
+                                            <td>
+                                                <button name="edit" type="button" class="btn btn-info"
+                                                        data-toggle="modal" data-target="#editUserModal"
+                                                        th:data-fn="${user.getFirstName()}"
+                                                        th:data-sn="${user.getSecondName()}"
+                                                        th:data-em="${user.getEmail()}"
+                                                        th:data-rl="${user.getAuthorityNames()}"
+                                                        th:data-id="${user.getId()}">Edit
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <button name="delete" type="button" class="btn btn-danger"
+                                                        data-toggle="modal" data-target="#deleteUserModal"
+                                                        th:data-fn="${user.getFirstName()}"
+                                                        th:data-sn="${user.getSecondName()}"
+                                                        th:data-em="${user.getEmail()}"
+                                                        th:data-rl="${user.getAuthorityNames()}"
+                                                        th:data-id="${user.getId()}">Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </th:block>
+
+                                </table>
+                            </div>
+                        </div>
+
+
+<!--                        <a th:if="${page.hasPrevPage()}"-->
+<!--                           th:href="@{/(page=${page.prevPageNumber()}, rowByPage=${page.getRowCountByPage()})}">Пред </a>-->
+<!--                        <a th:text="${page.getPageNumber()}"-->
+<!--                           th:href="@{/(rowByPage=${page.getRowCountByPage()})}"></a>-->
+<!--                        <a th:if="${page.hasNextPage()}"-->
+<!--                           th:href="@{/(page=${page.nextPageNumber()}, rowByPage=${page.getRowCountByPage()})}">-->
+<!--                            След</a>-->
+                        <br>
+                        <!-- Pagination -->
+                        <nav>
+                            <ul class="pagination">
+                                <!-- Prev -->
+                                <li th:attr="class=${page.hasPrevPage() ? 'page-item' : 'page-item disabled'}">
+                                    <a class="page-link"
+                                       th:href="@{/(page=${page.prevPageNumber()}, rowByPage=${page.getRowCountByPage()})}"
+                                       tabindex="-1">Previous</a>
+                                </li>
+
+                                <!-- Current page number -->
+                                <li class="page-item active">
+                                    <p class="page-link" th:text="${page.getPageNumber()}"><span class="sr-only">(current)</span>
+                                    </p>
+                                </li>
+
+                                <!-- Next -->
+                                <li th:attr="class=${page.hasNextPage() ? 'page-item' : 'page-item disabled'}">
+                                    <a class="page-link"
+                                       th:href="@{/(page=${page.nextPageNumber()}, rowByPage=${page.getRowCountByPage()})}">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+
+
+                    </div>
+                    <!--  -->
+
+                    <!-- Вкладка с модальным окном нового юзера -->
+                    <div class="tab-pane fade" id="nav-new-user" role="tabpanel" aria-labelledby="nav-new-user-tab">
+
+                        <!-- Форма создания нового бзера -->
+                        <div class="container border rounded p-0">
+                            <form th:action="@{/admin/users/post/}" method="post" class="m-3">
+                                <div class="form-group">
+
+                                    <label for="input_first_name">Имя</label>
+                                    <input type="text" class="form-control" id="input_first_name" placeholder="Введите имя" name="firstName"><br>
+
+                                    <label for="input_second_name">Фамилия</label>
+                                    <input type="text" class="form-control" id="input_second_name" placeholder="Введите фамилию" name="secondName"><br>
+
+                                    <label for="input_email">Email</label>
+                                    <input type="email" class="form-control" id="input_email" placeholder="Введите email" name="email"><br>
+
+                                    <label for="input_password">Пароль</label>
+                                    <input type="text" class="form-control" id="input_password" placeholder="Введите пароль" name="password"><br>
+
+                                    <th:block th:each="role : ${availableRoles}">
+                                        <input th:id="${role.getAuthority()}" type="checkbox" name="role" th:value="${role.getAuthority()}">
+                                        <label th:for="${role.getAuthority()}" th:text="${role.getAuthority()}" class="form-check-label"></label><br>
+                                    </th:block>
+
+                                </div>
+                                <button type="submit" class="btn btn-primary">Создать</button>
+                            </form>
+                        </div>
+                        <!--  -->
+                    </div>
+                    <!--  -->
+                </div>
+                <!-- Конец вложенного горизонтального навбара -->
+            </div>
+
+            <!-- Вкладка с информацией о текущем юзере(из вертикального навбара) -->
+            <div th:attr="class=${isAdmin ? 'tab-pane fade mx-3' : 'tab-pane active mx-3'}"
+                    id="v-pills-user" role="tabpanel" aria-labelledby="user-tab">
+
+                <H2>User information page</H2>
+
+                <div class="container border rounded p-0">
+
+                    <h3 class="m-3">About user</h3>
+                    <hr class="mx-1">
+
+                    <div class="container m-0 p-3">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Имя</th>
+                                <th>Фамилия</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                            </tr>
+                            </thead>
+                            <tr>
+                                <td th:text="${logged_user.getId()}"></td>
+                                <td th:text="${logged_user.getFirstName()}"></td>
+                                <td th:text="${logged_user.getSecondName()}"></td>
+                                <td th:text="${logged_user.getEmail()}"></td>
+                                <td>
+                                    <p class="mb-0" th:each="user_roles : ${logged_user.getRoles()}"
+                                       th:text="${user_roles.getAuthority()}"></p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+            <!--  -->
+        </div>
+    </div>
 </div>
+
+
+
+
+<!-- User edit modal -->
+<div th:if="${isAdmin}" class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Редактирование пользователя</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!--         Форма для редактирования пользователя       -->
+                <form id="userEditForm" action="" method="post" class="m-3">
+                    <div id="inputFormPart" class="form-group">
+
+                        <label for="editInputFirstName">Имя</label>
+                        <input type="text" class="form-control" id="editInputFirstName" placeholder="Введите имя" name="firstName"><br>
+
+                        <label for="editInputSecondName">Фамилия</label>
+                        <input type="text" class="form-control" id="editInputSecondName" placeholder="Введите фамилию" name="secondName"><br>
+
+                        <label for="editInputEmail">Email</label>
+                        <input type="email" class="form-control" id="editInputEmail" placeholder="Введите email" name="email"><br>
+
+                        <label for="editInputPassword">Пароль</label>
+                        <input type="text" class="form-control" id="editInputPassword" placeholder="Введите пароль" name="password"><br>
+
+                        <th:block th:each="role : ${availableRoles}">
+                            <input th:id="${role.getAuthority()}" type="checkbox" name="role" th:value="${role.getAuthority()}">
+                            <label th:for="${role.getAuthority()}" th:text="${role.getAuthority()}" class="form-check-label"></label><br>
+                        </th:block>
+
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отменить</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </form>
+                <!--  -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Modal -->
+
+
+
+<!-- User delete modal -->
+<div th:if="${isAdmin}" class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteUserModalLabel">Редактирование пользователя</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!--         Форма информирования перед удалением       -->
+                <form id="userDeleteForm" action="" method="post" class="m-3">
+                    <div id="deleteFormPart" class="form-group">
+
+                        <label for="deleteInputFirstName">Имя</label>
+                        <input type="text" class="form-control" id="deleteInputFirstName" placeholder="Введите имя" name="firstName" readonly><br>
+
+                        <label for="deleteInputSecondName">Фамилия</label>
+                        <input type="text" class="form-control" id="deleteInputSecondName" placeholder="Введите фамилию" name="secondName" readonly><br>
+
+                        <label for="deleteInputEmail">Email</label>
+                        <input type="email" class="form-control" id="deleteInputEmail" placeholder="Введите email" name="email" readonly><br>
+
+                        <label for="deleteInputPassword">Пароль</label>
+                        <input type="text" class="form-control" id="deleteInputPassword" placeholder="Введите пароль" name="password" readonly><br>
+
+                        <th:block th:each="role : ${availableRoles}">
+                            <input th:id="${role.getAuthority()}" type="checkbox" name="role" th:value="${role.getAuthority()}" disabled>
+                            <label th:for="${role.getAuthority()}" th:text="${role.getAuthority()}" class="form-check-label"></label><br>
+                        </th:block>
+
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отменить</button>
+                    <button type="submit" class="btn btn-primary">Удалить</button>
+                </form>
+                <!--  -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Modal -->
+
+
+
+
+
+<script th:if="${isAdmin}">
+    $('#editUserModal').on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget)
+        const modal = $(this)
+
+        clearInputs(modal.find('#inputFormPart'))
+        populateForm(modal, button, 'edit')
+
+        modal.find('#userEditForm').attr('action', `/admin/users/${button.data('id')}/edit`)
+
+    })
+
+
+    $('#deleteUserModal').on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget)
+        const modal = $(this)
+
+        clearInputs(modal.find('#deleteFormPart'))
+        populateForm(modal, button, 'delete')
+
+        modal.find('#userDeleteForm').attr('action', `/admin/users/delete/${button.data('id')}`)
+    })
+
+    function populateForm(form, dataSource, idPrefix){
+        const prefix = '#' + idPrefix;
+
+        form.find(prefix + 'InputFirstName').val(dataSource.data('fn'));
+        form.find(prefix + 'InputSecondName').val(dataSource.data('sn'));
+        form.find(prefix + 'InputEmail').val(dataSource.data('em'));
+
+        const roles = dataSource.data('rl').replace(/[\[\s\]]+/g, '').split(',');
+
+        roles.forEach(role => {
+            const checkbox = form.find('#' + role)
+            if (checkbox) {
+                checkbox[0].checked = 'checked';
+            }
+        });
+    }
+
+    function clearInputs(clearedObj) {
+        const inputs = clearedObj.find(':input');
+
+        for (let i = 0; i < inputs.length; i++) {
+            const input = inputs[i];
+            if (input.type === 'checkbox') {
+                input.checked = false;
+            } else if (input.type === 'text' || input.type === 'email') {
+                input.value = ''
+            }
+        }
+    }
+</script>
+
+
 </body>
 </html>

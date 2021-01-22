@@ -19,15 +19,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse httpServletResponse,
                                         Authentication authentication) throws IOException, ServletException {
 
-        Collection<? extends GrantedAuthority> grantedAuthorities = authentication.getAuthorities();
-        for (GrantedAuthority authority : grantedAuthorities) {
-            if (authority.getAuthority().contains("ADMIN")) {
-                httpServletResponse.sendRedirect("./admin/users/");
-                return;
-            }
-        }
-
-        httpServletResponse.sendRedirect("./user");
+        httpServletResponse.sendRedirect("./");
 
     }
 }

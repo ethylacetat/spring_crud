@@ -29,23 +29,6 @@ public class TrailingSlashRedirectFilter extends OncePerRequestFilter {
             HttpServletResponse httpServletResponse,
             FilterChain filterChain) throws ServletException, IOException {
         filterChain.doFilter(httpServletRequest, httpServletResponse);
-        /*
-        if (!httpServletRequest.getRequestURI().endsWith("/")
-                && httpServletRequest.getMethod().equalsIgnoreCase("get")
-                // TODO: Убрать для нестандартной формы логина
-                && !httpServletRequest.getRequestURI().endsWith("login")
-                && !httpServletRequest.getRequestURI().endsWith("logout")) {
-            System.out.println("Редирект с: " + httpServletRequest.getMethod());
-            ServletUriComponentsBuilder builder =
-                    ServletUriComponentsBuilder.fromRequest(httpServletRequest);
-            builder.replacePath(String.format("%s/",
-                    builder.build().getPath()));
-            httpServletResponse.setStatus(HttpStatus.MOVED_PERMANENTLY.value());
-            httpServletResponse.setHeader(HttpHeaders.LOCATION,
-                    builder.toUriString());
-        } else {
-            filterChain.doFilter(httpServletRequest, httpServletResponse);
-        }
-*/
+
     }
 }

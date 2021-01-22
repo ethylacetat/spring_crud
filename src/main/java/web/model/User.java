@@ -7,6 +7,7 @@ import web.model.Role.Role;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Entity
@@ -130,6 +131,10 @@ public class User implements UserDetails, Serializable {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
+    }
+
+    public Collection<String> getAuthorityNames() {
+        return roles.stream().map(Role::getAuthority).collect(Collectors.toList());
     }
 
     @Override
