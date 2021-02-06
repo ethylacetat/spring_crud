@@ -15,6 +15,7 @@ public class UserDaoImpl implements UserDao {
     private EntityManager entityManager;
 
     public UserDaoImpl() {
+        // NO-OP
     }
 
     @Override

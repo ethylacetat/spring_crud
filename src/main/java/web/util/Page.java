@@ -29,11 +29,11 @@ public class Page<T> {
         return pageNumber;
     }
 
-    public boolean hasNextPage() {
+    public boolean getHasNextPage() {
         return hasNextPage;
     }
 
-    public boolean hasPrevPage() {
+    public boolean getHasPrevPage() {
         return hasPrevPage;
     }
 

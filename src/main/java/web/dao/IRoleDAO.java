@@ -12,5 +12,5 @@ public interface IRoleDAO {
 
     Optional<Role> getRoleByID(long roleId);
 
-    void createRole(String roleName);
+    Role createRole(String roleName);
 }

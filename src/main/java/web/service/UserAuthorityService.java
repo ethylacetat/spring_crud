@@ -51,15 +51,18 @@ public class UserAuthorityService implements IAuthorityService {
         return user;
     }
 
+    @Override
     public Optional<Role> getRoleByID(long roleId) {
         return roleDAO.getRoleByID(roleId);
     }
 
+    @Override
     public Optional<Role> getRoleByName(String roleName) {
         return roleDAO.getRoleByName(roleName);
     }
 
-    public void createRole(String roleName) {
-        roleDAO.createRole(roleName);
+    @Override
+    public Role createRole(String roleName) {
+        return roleDAO.createRole(roleName);
     }
 }

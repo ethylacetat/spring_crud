@@ -44,7 +44,9 @@ public class RoleDAOImpl implements IRoleDAO {
     }
 
     @Override
-    public void createRole(String roleName) {
-        entityManager.persist(new Role(roleName));
+    public Role createRole(String roleName) {
+        Role createdRole = new Role(roleName);
+        entityManager.persist(createdRole);
+        return createdRole;
     }
 }

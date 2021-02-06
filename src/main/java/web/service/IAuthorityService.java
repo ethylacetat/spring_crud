@@ -15,5 +15,5 @@ public interface IAuthorityService extends UserDetailsService {
 
     Optional<Role> getRoleByName(String roleName);
 
-    void createRole(String roleName);
+    Role createRole(String roleName);
 }

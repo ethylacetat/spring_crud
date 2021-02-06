@@ -52,7 +52,7 @@
                             <h3 class="m-3">All users</h3>
                             <hr class="mx-1">
                             <div class="container m-0 p-3">
-                                <table class="table table-striped table-sm">
+                                <table id="usersTable" class="table table-striped table-sm">
                                     <thead>
                                     <tr>
                                         <th>ID</th>
@@ -63,72 +63,32 @@
                                         <th>Delete</th>
                                     </tr>
                                     </thead>
-                                    <th:block th:each="user : ${page.getPaginatedContent()}">
-                                        <tr>
-                                            <td th:text="${user.getId()}"></td>
-                                            <td th:text="${user.getFirstName()}"></td>
-                                            <td th:text="${user.getSecondName()}"></td>
-                                            <td th:text="${user.getEmail()}"></td>
-                                            <td>
-                                                <button name="edit" type="button" class="btn btn-info"
-                                                        data-toggle="modal" data-target="#editUserModal"
-                                                        th:data-fn="${user.getFirstName()}"
-                                                        th:data-sn="${user.getSecondName()}"
-                                                        th:data-em="${user.getEmail()}"
-                                                        th:data-rl="${user.getAuthorityNames()}"
-                                                        th:data-id="${user.getId()}">Edit
-                                                </button>
-                                            </td>
-                                            <td>
-                                                <button name="delete" type="button" class="btn btn-danger"
-                                                        data-toggle="modal" data-target="#deleteUserModal"
-                                                        th:data-fn="${user.getFirstName()}"
-                                                        th:data-sn="${user.getSecondName()}"
-                                                        th:data-em="${user.getEmail()}"
-                                                        th:data-rl="${user.getAuthorityNames()}"
-                                                        th:data-id="${user.getId()}">Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </th:block>
-
+                                    <tbody></tbody>
                                 </table>
                             </div>
                         </div>
 
-
-<!--                        <a th:if="${page.hasPrevPage()}"-->
-<!--                           th:href="@{/(page=${page.prevPageNumber()}, rowByPage=${page.getRowCountByPage()})}">Пред </a>-->
-<!--                        <a th:text="${page.getPageNumber()}"-->
-<!--                           th:href="@{/(rowByPage=${page.getRowCountByPage()})}"></a>-->
-<!--                        <a th:if="${page.hasNextPage()}"-->
-<!--                           th:href="@{/(page=${page.nextPageNumber()}, rowByPage=${page.getRowCountByPage()})}">-->
-<!--                            След</a>-->
                         <br>
                         <!-- Pagination -->
-                        <nav>
+                        <nav id="pagination">
                             <ul class="pagination">
                                 <!-- Prev -->
-                                <li th:attr="class=${page.hasPrevPage() ? 'page-item' : 'page-item disabled'}">
-                                    <a class="page-link"
-                                       th:href="@{/(page=${page.prevPageNumber()}, rowByPage=${page.getRowCountByPage()})}"
-                                       tabindex="-1">Previous</a>
+                                <li id="prev" th:attr="class=${page.getHasPrevPage() ? 'page-item' : 'page-item disabled'}">
+                                    <span id="prevRef" class="page-link">Prev</span>
                                 </li>
 
                                 <!-- Current page number -->
                                 <li class="page-item active">
-                                    <p class="page-link" th:text="${page.getPageNumber()}"><span class="sr-only">(current)</span>
+                                    <p id="page" class="page-link" th:text="${page.getPageNumber()}"><span class="sr-only">(current)</span>
                                     </p>
                                 </li>
 
                                 <!-- Next -->
-                                <li th:attr="class=${page.hasNextPage() ? 'page-item' : 'page-item disabled'}">
-                                    <a class="page-link"
-                                       th:href="@{/(page=${page.nextPageNumber()}, rowByPage=${page.getRowCountByPage()})}">Next</a>
+                                <li id="next" th:attr="class=${page.getHasNextPage() ? 'page-item' : 'page-item disabled'}">
+                                    <span id="nextRef" class="page-link">Next</span>
                                 </li>
                             </ul>
                         </nav>
-
 
                     </div>
                     <!--  -->
@@ -138,7 +98,7 @@
 
                         <!-- Форма создания нового бзера -->
                         <div class="container border rounded p-0">
-                            <form th:action="@{/admin/users/post/}" method="post" class="m-3">
+                            <form id="userCreationsForm" method="post" class="m-3">
                                 <div class="form-group">
 
                                     <label for="input_first_name">Имя</label>
@@ -159,7 +119,7 @@
                                     </th:block>
 
                                 </div>
-                                <button type="submit" class="btn btn-primary">Создать</button>
+                                <button type="submit" name="submitButton" class="btn btn-primary">Создать</button>
                             </form>
                         </div>
                         <!--  -->
@@ -212,35 +172,32 @@
     </div>
 </div>
 
-
-
-
-<!-- User edit modal -->
-<div th:if="${isAdmin}" class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+<!-- Common Modal -->
+<div th:if="${isAdmin}" class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editUserModalLabel">Редактирование пользователя</h5>
+                <h5 class="modal-title" name="modalTitle" id="userModalLabel"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <!--         Форма для редактирования пользователя       -->
-                <form id="userEditForm" action="" method="post" class="m-3">
-                    <div id="inputFormPart" class="form-group">
+                <!--         Форма информирования перед удалением       -->
+                <form id="userForm" action="" method="post" class="m-3">
+                    <div id="formPart" class="form-group">
 
-                        <label for="editInputFirstName">Имя</label>
-                        <input type="text" class="form-control" id="editInputFirstName" placeholder="Введите имя" name="firstName"><br>
+                        <label for="inputFirstName">Имя</label>
+                        <input type="text" class="form-control" id="inputFirstName" placeholder="Введите имя" name="firstName"><br>
 
-                        <label for="editInputSecondName">Фамилия</label>
-                        <input type="text" class="form-control" id="editInputSecondName" placeholder="Введите фамилию" name="secondName"><br>
+                        <label for="inputSecondName">Фамилия</label>
+                        <input type="text" class="form-control" id="inputSecondName" placeholder="Введите фамилию" name="secondName"><br>
 
-                        <label for="editInputEmail">Email</label>
-                        <input type="email" class="form-control" id="editInputEmail" placeholder="Введите email" name="email"><br>
+                        <label for="inputEmail">Email</label>
+                        <input type="email" class="form-control" id="inputEmail" placeholder="Введите email" name="email"><br>
 
-                        <label for="editInputPassword">Пароль</label>
-                        <input type="text" class="form-control" id="editInputPassword" placeholder="Введите пароль" name="password"><br>
+                        <label for="inputPassword">Пароль</label>
+                        <input type="text" class="form-control" id="inputPassword" placeholder="Введите пароль" name="password"><br>
 
                         <th:block th:each="role : ${availableRoles}">
                             <input th:id="${role.getAuthority()}" type="checkbox" name="role" th:value="${role.getAuthority()}">
@@ -248,119 +205,22 @@
                         </th:block>
 
                     </div>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отменить</button>
-                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <button id="cancelBtn" type="button" class="btn btn-secondary" data-dismiss="modal">Отменить</button>
+                    <button id="submitBtn" type="submit" name="submitButton" class="btn btn-primary">Подтвердить</button>
                 </form>
                 <!--  -->
             </div>
         </div>
     </div>
 </div>
+
+
+
+
 <!-- End Modal -->
 
 
-
-<!-- User delete modal -->
-<div th:if="${isAdmin}" class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteUserModalLabel">Редактирование пользователя</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!--         Форма информирования перед удалением       -->
-                <form id="userDeleteForm" action="" method="post" class="m-3">
-                    <div id="deleteFormPart" class="form-group">
-
-                        <label for="deleteInputFirstName">Имя</label>
-                        <input type="text" class="form-control" id="deleteInputFirstName" placeholder="Введите имя" name="firstName" readonly><br>
-
-                        <label for="deleteInputSecondName">Фамилия</label>
-                        <input type="text" class="form-control" id="deleteInputSecondName" placeholder="Введите фамилию" name="secondName" readonly><br>
-
-                        <label for="deleteInputEmail">Email</label>
-                        <input type="email" class="form-control" id="deleteInputEmail" placeholder="Введите email" name="email" readonly><br>
-
-                        <label for="deleteInputPassword">Пароль</label>
-                        <input type="text" class="form-control" id="deleteInputPassword" placeholder="Введите пароль" name="password" readonly><br>
-
-                        <th:block th:each="role : ${availableRoles}">
-                            <input th:id="${role.getAuthority()}" type="checkbox" name="role" th:value="${role.getAuthority()}" disabled>
-                            <label th:for="${role.getAuthority()}" th:text="${role.getAuthority()}" class="form-check-label"></label><br>
-                        </th:block>
-
-                    </div>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отменить</button>
-                    <button type="submit" class="btn btn-primary">Удалить</button>
-                </form>
-                <!--  -->
-            </div>
-        </div>
-    </div>
-</div>
-<!-- End Modal -->
-
-
-
-
-
-<script th:if="${isAdmin}">
-    $('#editUserModal').on('show.bs.modal', function (event) {
-        const button = $(event.relatedTarget)
-        const modal = $(this)
-
-        clearInputs(modal.find('#inputFormPart'))
-        populateForm(modal, button, 'edit')
-
-        modal.find('#userEditForm').attr('action', `/admin/users/${button.data('id')}/edit`)
-
-    })
-
-
-    $('#deleteUserModal').on('show.bs.modal', function (event) {
-        const button = $(event.relatedTarget)
-        const modal = $(this)
-
-        clearInputs(modal.find('#deleteFormPart'))
-        populateForm(modal, button, 'delete')
-
-        modal.find('#userDeleteForm').attr('action', `/admin/users/delete/${button.data('id')}`)
-    })
-
-    function populateForm(form, dataSource, idPrefix){
-        const prefix = '#' + idPrefix;
-
-        form.find(prefix + 'InputFirstName').val(dataSource.data('fn'));
-        form.find(prefix + 'InputSecondName').val(dataSource.data('sn'));
-        form.find(prefix + 'InputEmail').val(dataSource.data('em'));
-
-        const roles = dataSource.data('rl').replace(/[\[\s\]]+/g, '').split(',');
-
-        roles.forEach(role => {
-            const checkbox = form.find('#' + role)
-            if (checkbox) {
-                checkbox[0].checked = 'checked';
-            }
-        });
-    }
-
-    function clearInputs(clearedObj) {
-        const inputs = clearedObj.find(':input');
-
-        for (let i = 0; i < inputs.length; i++) {
-            const input = inputs[i];
-            if (input.type === 'checkbox') {
-                input.checked = false;
-            } else if (input.type === 'text' || input.type === 'email') {
-                input.value = ''
-            }
-        }
-    }
-</script>
-
+<script th:if="${isAdmin}" src="../../scripts/index.js" type="module"></script>
 
 </body>
 </html>
