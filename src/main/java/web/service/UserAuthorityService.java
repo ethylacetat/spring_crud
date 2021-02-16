@@ -46,12 +46,6 @@ public class UserAuthorityService implements IAuthorityService {
             throw new UsernameNotFoundException("User not found");
         }
 
-        try {
-            throw new NullPointerException("Кто блять это делает?");
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-
         JPAUtil.initialize(user.getRoles());
 
         return user;
