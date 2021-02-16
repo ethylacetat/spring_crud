@@ -137,6 +137,10 @@ public class User implements UserDetails, Serializable {
         return roles.stream().map(Role::getAuthority).collect(Collectors.toList());
     }
 
+    public String getAuthorityNamesAsString() {
+        return roles.stream().map(Role::getAuthority).collect(Collectors.joining(", "));
+    }
+
     @Override
     public String getPassword() {
         return password;

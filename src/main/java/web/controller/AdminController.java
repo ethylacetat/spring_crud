@@ -15,8 +15,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 
 @RestController
 @RequestMapping(path = AdminController.CONTROLLER_ROOT)
@@ -40,16 +38,13 @@ public class AdminController {
         return "admin/adminMain";
     }
 
-    // TODO: Ренейм на пейдж
-    // TODO: Изменить эндпоинт
     @GetMapping(path = AdminController.USERS_ROOT)
     public ResponseEntity<Page<User>> getAllUser(
             @RequestParam(name = "page", defaultValue = "1") int pageNumber,
             @RequestParam(name = "rowByPage", defaultValue = "10") int rowByPage
     ) {
         Page<User> userPage = userService.getUsersPage(pageNumber, rowByPage);
-        // Не отправляем пользователю пароли пользователей
-        // TODO: переделать на DTO?
+
         userPage.getPaginatedContent().forEach(user -> user.setPassword(null));
 
         return ResponseEntity.ok(userPage);
@@ -64,7 +59,6 @@ public class AdminController {
 
         Optional<User> optionalUser = userService.getUserByIdWithJoins(userId);
 
-        // Не отправляем пользователю пароль
         optionalUser.ifPresent(user -> user.setPassword(null));
 
         return optionalUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
@@ -76,7 +70,6 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    // TODO: User -> UserDTO (и мержить руками)
     @PutMapping(path = "/users/{id}")
     public ResponseEntity<Void> mergeUser(
             @PathVariable(name = "id") long userId,
@@ -86,29 +79,11 @@ public class AdminController {
             return ResponseEntity.badRequest().build();
         }
 
-        Optional<User> optional = userService.getUserById(userId);
-
-        if (optional.isPresent()) {
-            User dbUser = optional.get();
-            mergedUser.setPassword(dbUser.getPassword());
-
-            List<Role> roleList = userAuthorityService.getAvailableRoles();
-
-            Set<Role> roles = roleList
-                    .stream()
-                    .filter(role -> checkboxes.contains(role.getAuthority()))
-                    .collect(Collectors.toSet());
-
-            mergedUser.addAllRole(roles);
-
-            userService.mergeUser(mergedUser);
-        }
+        userService.mergeUser(mergedUser, checkboxes);
 
         return ResponseEntity.ok().build();
     }
 
-    // Адрес для запроса на создание пользователя
-    // TODO: User -> UserDTO
     @PostMapping(path = "/users")
     public ResponseEntity<Void> addUser(User newUser, @RequestParam(name = "role") Set<String> roles) {
         if (newUser.getPassword() == null || newUser.getPassword().equalsIgnoreCase("")
@@ -116,17 +91,14 @@ public class AdminController {
             return ResponseEntity.badRequest().build();
         }
 
-        Set<Role> existedRoles = userAuthorityService.getAvailableRoles()
-                .stream()
-                .filter(role -> roles.contains(role.getAuthority()))
-                .collect(Collectors.toSet());
+        userService.addUser(newUser, roles);
 
-        newUser.setRoles(existedRoles);
-
-        userService.addUser(newUser);
-
-        URI userURI = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/../{id}").buildAndExpand(newUser.getId()).normalize().toUri();
+        URI userURI = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/../{id}")
+                .buildAndExpand(newUser.getId())
+                .normalize()
+                .toUri();
 
         return ResponseEntity.created(userURI).build();
     }
@@ -156,7 +128,6 @@ public class AdminController {
             return ResponseEntity.created(roleLocation).build();
         }
 
-        // TODO: Посмотреть что отвечать на пустой пользовательский запрос
         return ResponseEntity.badRequest().build();
     }
 }

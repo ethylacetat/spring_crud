@@ -12,6 +12,7 @@ import web.service.IAuthorityService;
 import web.service.UserService;
 import web.util.Page;
 
+import java.util.HashSet;
 import java.util.Optional;
 
 @Controller
@@ -30,9 +31,7 @@ public class UserController {
     @GetMapping
     public String getMainPage(
             Authentication authentication,
-            ModelMap modelMap,
-            @RequestParam(name = "page", defaultValue = "1") int pageNumber,
-            @RequestParam(name = "rowByPage", defaultValue = "10") int rowByPage
+            ModelMap modelMap
         ) {
         if (authentication != null) {
             boolean isAdmin = authentication.getAuthorities()
@@ -42,24 +41,15 @@ public class UserController {
             modelMap.addAttribute("isAdmin", isAdmin);
 
             if (isAdmin) {
-                Page<User> userPage = userService.getUsersPage(pageNumber, rowByPage);
-                modelMap.addAttribute("page", userPage);
                 modelMap.addAttribute("availableRoles", userAuthorityService.getAvailableRoles());
             }
 
-            Optional<User> loggedUser = userService.getUserByEmail(authentication.getName());
-            loggedUser.ifPresent(user -> modelMap.addAttribute("logged_user", user));
+            userService.getUserByEmail(authentication.getName())
+                    .ifPresent(user -> modelMap.addAttribute("logged_user", user));
 
         }
 
         return "index";
     }
 
-    @GetMapping
-    @RequestMapping(path = "/user")
-    public String getUserPage(Authentication authentication, ModelMap model) {
-        Optional<User> optionalUser = userService.getUserByEmail(authentication.getName());
-        optionalUser.ifPresent(user -> model.addAttribute("user", user));
-        return "./user";
-    }
 }

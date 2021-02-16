@@ -14,7 +14,7 @@
 </head>
 <body class="container-fluid p-0">
 <header class="navbar bg-dark">
-    <h3 th:text="${logged_user.getEmail()}" class="text-white"></h3>
+    <h4 th:text="${logged_user.getEmail()}+' '+${logged_user.getAuthorityNamesAsString()}" class="text-white"></h4>
     <a href="/logout" class="btn btn-dark">Logout</a>
 </header>
 
@@ -73,18 +73,18 @@
                         <nav id="pagination">
                             <ul class="pagination">
                                 <!-- Prev -->
-                                <li id="prev" th:attr="class=${page.getHasPrevPage() ? 'page-item' : 'page-item disabled'}">
+                                <li id="prev">
                                     <span id="prevRef" class="page-link">Prev</span>
                                 </li>
 
                                 <!-- Current page number -->
                                 <li class="page-item active">
-                                    <p id="page" class="page-link" th:text="${page.getPageNumber()}"><span class="sr-only">(current)</span>
+                                    <p id="page" class="page-link"><span class="sr-only">(current)</span>
                                     </p>
                                 </li>
 
                                 <!-- Next -->
-                                <li id="next" th:attr="class=${page.getHasNextPage() ? 'page-item' : 'page-item disabled'}">
+                                <li id="next" >
                                     <span id="nextRef" class="page-link">Next</span>
                                 </li>
                             </ul>
@@ -214,11 +214,7 @@
     </div>
 </div>
 
-
-
-
 <!-- End Modal -->
-
 
 <script th:if="${isAdmin}" src="../../scripts/index.js" type="module"></script>
 

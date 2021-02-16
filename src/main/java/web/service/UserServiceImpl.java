@@ -1,8 +1,11 @@
 package web.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import web.dao.IRoleDAO;
 import web.dao.UserDao;
+import web.model.Role.Role;
 import web.model.User;
 import web.util.JPAUtil;
 import web.util.Page;
@@ -10,16 +13,22 @@ import web.util.Page;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
+    private final IRoleDAO roleDAO;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserDao userDao) {
+    public UserServiceImpl(UserDao userDao, IRoleDAO roleDAO, PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
+        this.roleDAO = roleDAO;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -89,11 +98,58 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void addUser(User user) {
+        encodePasswordFor(user);
+        userDao.addUser(user);
+    }
+
+    @Override
+    public void addUser(User user, Set<String> userRoles) {
+        Set<Role> existedRoles = roleDAO.getAvailableRoles()
+                .stream()
+                .filter(role -> userRoles.contains(role.getAuthority()))
+                .collect(Collectors.toSet());
+
+        user.setRoles(existedRoles);
+        encodePasswordFor(user);
         userDao.addUser(user);
     }
 
     @Override
     public void mergeUser(User user) {
+        encodePasswordFor(user);
         userDao.mergeUser(user);
+    }
+
+    @Override
+    public void mergeUser(User user, Set<String> userRoles) {
+        Optional<User> optional = userDao.getUserById(user.getId());
+
+        if (optional.isPresent()) {
+            User dbUser = optional.get();
+
+            if (user.getPassword() == null || "".equalsIgnoreCase(user.getPassword())) {
+                user.setPassword(dbUser.getPassword());
+            } else {
+                encodePasswordFor(user);
+            }
+
+            Set<Role> roles = roleDAO.getAvailableRoles()
+                    .stream()
+                    .filter(role -> userRoles.contains(role.getAuthority()))
+                    .collect(Collectors.toSet());
+
+            user.addAllRole(roles);
+
+            userDao.mergeUser(user);
+        }
+    }
+
+    private void encodePasswordFor(User user) {
+        String userPass = user.getPassword();
+
+        if (!"".equalsIgnoreCase(userPass)) {
+            String encodedPass = passwordEncoder.encode(user.getPassword());
+            user.setPassword(encodedPass);
+        }
     }
 }
